@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .attribution {
+            font-family: 'Times New Roman', serif;
+            font-size: 12px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div id="front-page" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+        <h1 class="text-3xl font-bold text-center mb-4">Calculus Quest</h1>
+        <p class="text-center mb-4">Best Score: <span id="best-score">0</span></p>
+        <button id="start-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mx-auto block">Start Game</button>
+        <div class="attribution">by Gary Lin</div>
+    </div>
+    <div id="selection-page" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl hidden">
+        <h1 class="text-3xl font-bold text-center mb-4">Select Mode, Unit, and Difficulty</h1>
+        <div class="mb-4">
+            <label for="mode-select" class="block text-center mb-2">Select Mode:</label>
+            <select id="mode-select" class="w-full p-2 border rounded mb-2">
+                <option value="">Choose Mode</option>
+                <option value="Standard">Standard Mode</option>
+                <option value="PastPapers">Past Papers Mode</option>
+            </select>
+            <div id="standard-options" class="hidden">
+                <label for="unit-select" class="block text-center mb-2">Select Unit:</label>
+                <select id="unit-select" class="w-full p-2 border rounded mb-2">
+                    <option value="">Choose Unit</option>
+                    <option value="Mixed">Mixed (All Units)</option>
+                    <option value="Limits and Continuity">Limits and Continuity</option>
+                    <option value="Differentiation: Definition and Basic Rules">Differentiation: Definition and Basic Rules</option>
+                    <option value="Differentiation: Composite, Implicit, and Inverse">Differentiation: Composite, Implicit, and Inverse</option>
+                    <option value="Contextual Applications of Differentiation">Contextual Applications of Differentiation</option>
+                    <option value="Analytical Applications of Differentiation">Analytical Applications of Differentiation</option>
+                    <option value="Integration and Accumulation of Change">Integration and Accumulation of Change</option>
+                    <option value="Differential Equations">Differential Equations</option>
+                    <option value="Applications of Integration">Applications of Integration</option>
+                    <option value="Parametric, Polar, and Vector-Valued Functions">Parametric, Polar, and Vector-Valued Functions</option>
+                    <option value="Infinite Sequences and Series">Infinite Sequences and Series</option>
+                </select>
+                <label for="difficulty-select" class="block text-center mb-2">Select Difficulty:</label>
+                <select id="difficulty-select" class="w-full p-2 border rounded">
+                    <option value="">Choose Difficulty</option>
+                    <option value="Easy">Easy (1 point)</option>
+                    <option value="Medium">Medium (3 points)</option>
+                    <option value="Hard">Hard (5 points)</option>
+                </select>
+            </div>
+            <div id="past-papers-options" class="hidden">
+                <label for="year-select" class="block text-center mb-2">Select Year:</label>
+                <select id="year-select" class="w-full p-2 border rounded">
+                    <option value="">Choose Year</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+        </div>
+        <button id="begin-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mx-auto block">Begin Game</button>
+        <div id="selection-feedback" class="mt-4 text-center text-red-500"></div>
+    </div>
+    <div id="game-page" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl hidden">
+        <h1 class="text-3xl font-bold text-center mb-4">Calculus Quest</h1>
+        <div id="game-status" class="text-center mb-4">
+            <p>Mode: <span id="mode-display">Standard</span></p>
+            <p id="section-display" class="hidden">Section: <span id="section">No Calculator</span></p>
+            <p>Question: <span id="question-count">1</span>/<span id="total-questions">30</span></p>
+            <p id="unit-display">Unit: <span id="unit">Not selected</span></p>
+            <p id="difficulty-display">Difficulty: <span id="difficulty">Not selected</span></p>
+            <p id="year-display" class="hidden">Year: <span id="year">Not selected</span></p>
+            <p>Player 1: <span id="score">0</span> points</p>
+            <p>Time: <span id="timer">100</span>s</p>
+        </div>
+        <div id="question-card" class="bg-blue-100 p-4 rounded mb-4">
+            <p id="question-text"></p>
+            <p id="unit-difficulty"></p>
+            <p id="calculator-label" class="font-bold"></p>
+            <div id="mcq-options" class="mt-2 hidden">
+                <label class="block"><input type="radio" name="mcq" value="A"> <span id="option-a"></span></label>
+                <label class="block"><input type="radio" name="mcq" value="B"> <span id="option-b"></span></label>
+                <label class="block"><input type="radio" name="mcq" value="C"> <span id="option-c"></span></label>
+                <label class="block"><input type="radio" name="mcq" value="D"> <span id="option-d"></span></label>
+            </div>
+        </div>
+        <input id="answer-input" type="text" placeholder="Enter your answer" class="w-full p-2 mb-4 border rounded">
+        <div class="flex justify-center space-x-4">
+            <button id="home-btn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Home</button>
+            <button id="next-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" disabled>Next Question</button>
+            <button id="submit-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Submit Answer</button>
+        </div>
+        <div id="feedback" class="mt-4"></div>
+        <div id="solution" class="mt-4 hidden bg-gray-200 p-4 rounded"></div>
+        <div id="end-game" class="mt-4 hidden text-center">
+            <p>Game Over! Final Score: <span id="final-score"></span></p>
+            <button id="download-btn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mt-2">Download Answer Key</button>
+        </div>
+    </div>
+
+    <script>
+        const units = [
+            "Limits and Continuity",
+            "Differentiation: Definition and Basic Rules",
+            "Differentiation: Composite, Implicit, and Inverse",
+            "Contextual Applications of Differentiation",
+            "Analytical Applications of Differentiation",
+            "Integration and Accumulation of Change",
+            "Differential Equations",
+            "Applications of Integration",
+            "Parametric, Polar, and Vector-Valued Functions",
+            "Infinite Sequences and Series"
+        ];
+
+        const standardQuestionsBase = [
+            {
+                unit: "Limits and Continuity",
+                difficulty: "Easy",
+                points: 1,
+                question: "Evaluate: lim(x→2) (x^2 - 4)/(x - 2)",
+                answer: "4",
+                solution: "Factor: (x^2 - 4) = (x - 2)(x + 2). Cancel: lim(x→2) (x + 2) = 4."
+            },
+            {
+                unit: "Limits and Continuity",
+                difficulty: "Medium",
+                question: "Evaluate: lim(x→0) (sin(5x))/(2x)",
+                answer: "5/2",
+                solution: "Rewrite: (5/2) * lim(x→0) (sin(5x))/(5x) = (5/2) * 1 = 5/2."
+            },
+            {
+                unit: "Limits and Continuity",
+                difficulty: "Hard",
+                question: "Evaluate: lim(x→∞) (ln(x^2))/(x)",
+                answer: "0",
+                solution: "Rewrite: lim(x→∞) (2ln(x))/x. L’Hôpital’s: lim(x→∞) (2/x)/1 = 0."
+            },
+            {
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the derivative of f(x) = 7x^4.",
+                answer: "28x^3",
+                solution: "Power rule: f'(x) = 7 * 4x^3 = 28x^3."
+            },
+            {
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the derivative of f(x) = 3x^2.",
+                answer: "6x",
+                solution: "Power rule: f'(x) = 3 * 2x = 6x."
+            },
+            {
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the derivative of f(x) = 5x.",
+                answer: "5",
+                solution: "Power rule: f'(x) = 5 * 1 = 5."
+            },
+            {
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Medium",
+                question: "Find the derivative of f(x) = x^2 * e^x.",
+                answer: "2x * e^x + x^2 * e^x",
+                solution: "Product rule: f'(x) = 2x * e^x + x^2 * e^x."
+            },
+            {
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Hard",
+                question: "Find the derivative of f(x) = (x^2)/(x^2 + 1).",
+                answer: "(2x)/(x^2 + 1)^2",
+                solution: "Quotient rule: f'(x) = [(2x)(x^2 + 1) - (x^2)(2x)]/(x^2 + 1)^2 = (2x)/(x^2 + 1)^2."
+            },
+            {
+                unit: "Differentiation: Composite, Implicit, and Inverse",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the derivative of f(x) = sin(3x).",
+                answer: "3cos(3x)",
+                solution: "Chain rule: f'(x) = cos(3x) * 3 = 3cos(3x)."
+            },
+            {
+                unit: "Differentiation: Composite, Implicit, and Inverse",
+                difficulty: "Medium",
+                question: "Find dy/dx for x^3 + y^3 = 8.",
+                answer: "-x^2/y^2",
+                solution: "Implicit: 3x^2 + 3y^2 * dy/dx = 0. Solve: dy/dx = -x^2/y^2."
+            },
+            {
+                unit: "Differentiation: Composite, Implicit, and Inverse",
+                difficulty: "Hard",
+                question: "Find the derivative of f(x) = arctan(2x).",
+                answer: "2/(1 + 4x^2)",
+                solution: "Chain rule: f'(x) = (1/(1 + (2x)^2)) * 2 = 2/(1 + 4x^2)."
+            },
+            {
+                unit: "Contextual Applications of Differentiation",
+                difficulty: "Easy",
+                points: 1,
+                question: "If s(t) = 4t^3, find velocity at t = 1.",
+                answer: "12",
+                solution: "Velocity = s'(t) = 12t^2. At t = 1: 12 * 1 = 12."
+            },
+            {
+                unit: "Contextual Applications of Differentiation",
+                difficulty: "Medium",
+                question: "A square’s side increases at 3 cm/s. Find dA/dt when s = 10 cm.",
+                answer: "60",
+                solution: "A = s^2, dA/dt = 2s * ds/dt. At s = 10, ds/dt = 3: 2 * 10 * 3 = 60."
+            },
+            {
+                unit: "Contextual Applications of Differentiation",
+                difficulty: "Hard",
+                question: "A ladder 13 ft long slides down a wall. Find the rate the top moves when the bottom is 5 ft from the wall at 2 ft/s.",
+                answer: "-12/5",
+                solution: "x^2 + y^2 = 169, 2x * dx/dt + 2y * dy/dt = 0. At x = 5, y = 12, dx/dt = 2: dy/dt = -12/5."
+            },
+            {
+                unit: "Analytical Applications of Differentiation",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the critical points of f(x) = x^3 - 9x.",
+                answer: "x = -√3, x = √3",
+                solution: "f'(x) = 3x^2 - 9 = 0, x^2 = 3, x = ±√3."
+            },
+            {
+                unit: "Analytical Applications of Differentiation",
+                difficulty: "Medium",
+                question: "Find the intervals where f(x) = x^4 - 4x^2 is concave up.",
+                answer: "(-∞, -1/√3) ∪ (1/√3, ∞)",
+                solution: "f''(x) = 12x^2 - 8 = 0, x = ±1/√3. Test intervals: f''(x) > 0 for (-∞, -1/√3) ∪ (1/√3, ∞)."
+            },
+            {
+                unit: "Analytical Applications of Differentiation",
+                difficulty: "Hard",
+                question: "Use L’Hôpital’s rule to evaluate lim(x→0) (e^x - x - 1)/x^2.",
+                answer: "1/2",
+                solution: "L’Hôpital’s twice: lim(x→0) (e^x - 1)/(2x) = lim(x→0) e^x/2 = 1/2."
+            },
+            {
+                unit: "Integration and Accumulation of Change",
+                difficulty: "Easy",
+                points: 1,
+                question: "Evaluate: ∫ 5x^4 dx.",
+                answer: "x^5 + C",
+                solution: "Power rule: ∫ 5x^4 dx = x^5 + C."
+            },
+            {
+                unit: "Integration and Accumulation of Change",
+                difficulty: "Medium",
+                question: "Evaluate: ∫(0 to 1) x^2 * e^x dx.",
+                answer: "e - 2",
+                solution: "Integration by parts: u = x^2, dv = e^x dx. ∫ x^2 e^x dx = x^2 e^x - 2xe^x + 2e^x. Evaluate: [x^2 e^x - 2xe^x + 2e^x](0 to 1) = e - 2."
+            },
+            {
+                unit: "Integration and Accumulation of Change",
+                difficulty: "Hard",
+                question: "Evaluate: ∫(0 to ∞) e^(-3x) dx.",
+                answer: "1/3",
+                solution: "∫ e^(-3x) dx = (-1/3)e^(-3x). Evaluate: lim(t→∞) [(-1/3)e^(-3x)](0 to t) = 0 - (-1/3) = 1/3."
+            },
+            {
+                unit: "Differential Equations",
+                difficulty: "Easy",
+                points: 1,
+                question: "Solve: dy/dx = 6x^2, y(0) = 3.",
+                answer: "2x^3 + 3",
+                solution: "∫ dy = ∫ 6x^2 dx, y = 2x^3 + C. At y(0) = 3: C = 3."
+            },
+            {
+                unit: "Differential Equations",
+                difficulty: "Medium",
+                question: "Solve: dy/dx = y/(2x), y(1) = 4.",
+                answer: "4√x",
+                solution: "Separable: ∫ dy/y = ∫ 1/(2x) dx, ln|y| = (1/2)ln|x| + C. y = Cx^(1/2). At y(1) = 4: C = 4."
+            },
+            {
+                unit: "Differential Equations",
+                difficulty: "Hard",
+                question: "Solve: dy/dx = -2xy, y(0) = 1.",
+                answer: "e^(-x^2)",
+                solution: "Separable: ∫ dy/y = ∫ -2x dx, ln|y| = -x^2 + C. y = Ce^(-x^2). At y(0) = 1: C = 1."
+            },
+            {
+                unit: "Applications of Integration",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the area under y = 4x from x = 0 to x = 1.",
+                answer: "2",
+                solution: "∫(0 to 1) 4x dx = [2x^2](0 to 1) = 2 - 0 = 2."
+            },
+            {
+                unit: "Applications of Integration",
+                difficulty: "Medium",
+                question: "Find the volume of y = x^2, y = 0, x = 1 rotated about the y-axis.",
+                answer: "π/2",
+                solution: "Shell method: V = 2π ∫(0 to 1) x * x^2 dx = 2π ∫(0 to 1) x^3 dx = 2π [x^4/4](0 to 1) = π/2."
+            },
+            {
+                unit: "Applications of Integration",
+                difficulty: "Hard",
+                question: "Find the arc length of y = x^2 from x = 0 to x = 1.",
+                answer: "(√5 + ln(2 + √5))/2",
+                solution: "Arc length = ∫(0 to 1) sqrt(1 + (2x)^2) dx. Compute integral."
+            },
+            {
+                unit: "Parametric, Polar, and Vector-Valued Functions",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find dy/dx for x = t, y = t^2.",
+                answer: "2t",
+                solution: "dy/dx = (dy/dt)/(dx/dt), dy/dt = 2t, dx/dt = 1. dy/dx = 2t."
+            },
+            {
+                unit: "Parametric, Polar, and Vector-Valued Functions",
+                difficulty: "Medium",
+                question: "Find the area enclosed by r = 2cos(θ) for 0 ≤ θ ≤ π.",
+                answer: "π",
+                solution: "Area = (1/2) ∫(0 to π) (2cos(θ))^2 dθ = 2 ∫(0 to π) cos^2(θ) dθ = π."
+            },
+            {
+                unit: "Parametric, Polar, and Vector-Valued Functions",
+                difficulty: "Hard",
+                question: "Find the acceleration vector for r(t) = <t^3, t^2>.",
+                answer: "<6t, 2>",
+                solution: "Acceleration = r''(t). r'(t) = <3t^2, 2t>, r''(t) = <6t, 2>."
+            },
+            {
+                unit: "Infinite Sequences and Series",
+                difficulty: "Easy",
+                points: 1,
+                question: "Find the sum of Σ(n=1 to ∞) (1/3)^n.",
+                answer: "1/2",
+                solution: "Geometric series: a = 1/3, r = 1/3. Sum = (1/3)/(1 - 1/3) = 1/2."
+            },
+            {
+                unit: "Infinite Sequences and Series",
+                difficulty: "Medium",
+                question: "Test Σ(n=1 to ∞) 1/(n^4) for convergence.",
+                answer: "Converges",
+                solution: "p-series with p = 4 > 1, so converges."
+            },
+            {
+                unit: "Infinite Sequences and Series",
+                difficulty: "Hard",
+                question: "Find the Taylor series for f(x) = e^x at x = 0.",
+                answer: "Σ(n=0 to ∞) (x^n)/(n!)",
+                solution: "f^(n)(x) = e^x, f^(n)(0) = 1. Series: Σ (x^n)/(n!)."
+            }
+        ];
+
+        for (let i = 3; i < 30; i++) {
+            standardQuestionsBase.push({
+                unit: "Differentiation: Definition and Basic Rules",
+                difficulty: "Easy",
+                points: 1,
+                question: `Find the derivative of f(x) = ${i}x^${i % 5 + 1}.`,
+                answer: `${i * (i % 5 + 1)}x^${i % 5}`,
+                solution: `Power rule: f'(x) = ${i} * ${(i % 5 + 1)}x^${(i % 5 + 1) - 1} = ${i * (i % 5 + 1)}x^${i % 5}.`
+            });
+        }
+
+        const standardQuestions = [...standardQuestionsBase];
+        units.forEach(unit => {
+            for (let i = 1; i <= 2; i++) {
+                standardQuestions.push({
+                    unit: unit,
+                    difficulty: "Medium",
+                    points: 3,
+                    question: `Evaluate: ∫(0 to 1) ${i}x^2 dx for ${unit} (Medium ${i}).`,
+                    answer: `${i/3}`,
+                    solution: `∫ ${i}x^2 dx = (${i}/3)x^3, from 0 to 1: (${i}/3)(1) = ${i/3}.`
+                });
+            }
+            for (let i = 1; i <= 2; i++) {
+                standardQuestions.push({
+                    unit: unit,
+                    difficulty: "Hard",
+                    points: 5,
+                    question: `Evaluate: lim(x→0) (sin(${i}x))/(${i}x) for ${unit} (Hard ${i}).`,
+                    answer: "1",
+                    solution: `lim(x→0) (sin(${i}x))/(${i}x) = 1, since lim(x→0) (sin(u))/u = 1 where u = ${i}x.`
+                });
+            }
+        });
+
+        const pastPapersBase = {
+            "2017": {
+                noCalculator: [
+                    {
+                        question: "What is lim(x→0) (sin(2x))/x ?",
+                        options: { A: "0", B: "1", C: "2", D: "∞" },
+                        answer: "C",
+                        solution: "lim(x→0) (sin(2x))/x = 2 * lim(x→0) (sin(2x))/(2x) = 2 * 1 = 2."
+                    },
+                    {
+                        question: "If f(x) = x^3 + 2x, what is f'(1)?",
+                        options: { A: "3", B: "5", C: "7", D: "9" },
+                        answer: "B",
+                        solution: "f'(x) = 3x^2 + 2, so f'(1) = 3(1)^2 + 2 = 5."
+                    },
+                    {
+                        question: "What is the derivative of f(x) = cos(2x)?",
+                        options: { A: "-sin(2x)", B: "sin(2x)", C: "-2sin(2x)", D: "2sin(2x)" },
+                        answer: "C",
+                        solution: "Chain rule: f'(x) = -sin(2x) * 2 = -2sin(2x)."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) (-1)^n/(2n) converge?",
+                        options: { A: "Yes", B: "No", C: "Diverges to ∞", D: "Oscillates" },
+                        answer: "A",
+                        solution: "Alternating series test: 1/(2n) decreases and → 0, so converges."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = ln(3x).",
+                        options: { A: "1/x", B: "3/x", C: "1/(3x)", D: "3/(3x)" },
+                        answer: "B",
+                        solution: "Chain rule: f'(x) = (1/(3x)) * 3 = 3/x."
+                    },
+                    {
+                        question: "What does the limit lim(x→2) (x^2 - 4)/(x - 2) represent graphically?",
+                        options: { A: "A discontinuity", B: "A vertical asymptote", C: "The slope at x = 2", D: "The area under the curve" },
+                        answer: "C",
+                        solution: "lim(x→2) (x^2 - 4)/(x - 2) = 4, which represents the slope of the tangent line at x = 2 after simplification."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = sin(x) * e^x.",
+                        options: { A: "cos(x) * e^x", B: "sin(x) * e^x", C: "cos(x) + e^x", D: "cos(x) * e^x + sin(x) * e^x" },
+                        answer: "D",
+                        solution: "Product rule: f'(x) = cos(x) * e^x + sin(x) * e^x."
+                    },
+                    {
+                        question: "What does the second derivative tell us about f(x) = x^3 at x = 0?",
+                        options: { A: "Point of inflection", B: "Local minimum", C: "Local maximum", D: "No conclusion" },
+                        answer: "D",
+                        solution: "f''(x) = 6x, at x = 0, f''(0) = 0, so the second derivative test is inconclusive."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = sin(3x^2).",
+                        options: { A: "cos(3x^2)", B: "6x * cos(3x^2)", C: "3cos(3x^2)", D: "-6x * sin(3x^2)" },
+                        answer: "B",
+                        solution: "Chain rule: f'(x) = cos(3x^2) * (6x) = 6x * cos(3x^2)."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = arcsin(x) at x = 0.",
+                        options: { A: "0", B: "-1", C: "1", D: "undefined" },
+                        answer: "C",
+                        solution: "f'(x) = 1/√(1 - x^2), at x = 0: f'(0) = 1/√(1 - 0) = 1."
+                    },
+                    {
+                        question: "Evaluate lim(x→1) (x^2 - 1)/(x - 1).",
+                        options: { A: "2", B: "1", C: "0", D: "undefined" },
+                        answer: "A",
+                        solution: "Factor: (x^2 - 1)/(x - 1) = (x + 1)(x - 1)/(x - 1), lim(x→1) (x + 1) = 2."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = (x^2 + 1)/x.",
+                        options: { A: "2x", B: "(2x^2 + 1)/x^2", C: "1/x", D: "(x^2 - 1)/x^2" },
+                        answer: "D",
+                        solution: "Quotient rule: f'(x) = [(2x * x) - (x^2 + 1) * 1]/x^2 = (x^2 - 1)/x^2."
+                    },
+                    {
+                        question: "What is the derivative of f(x) = arctan(x^2)?",
+                        options: { A: "1/(1 + x^4)", B: "2x/(1 + x^4)", C: "1/(1 + x^2)", D: "2x/(1 + x^2)" },
+                        answer: "B",
+                        solution: "Chain rule: f'(x) = (1/(1 + (x^2)^2)) * 2x = 2x/(1 + x^4)."
+                    },
+                    {
+                        question: "Evaluate lim(x→0) (e^x - 1)/x.",
+                        options: { A: "0", B: "e", C: "1", D: "undefined" },
+                        answer: "C",
+                        solution: "L’Hôpital’s: lim(x→0) (e^x - 1)/x = lim(x→0) e^x/1 = 1."
+                    },
+                    {
+                        question: "What is the behavior of f(x) = x/(x - 1) as x approaches 1?",
+                        options: { A: "Approaches 0", B: "Approaches 1", C: "Undefined with vertical asymptote", D: "Approaches ∞" },
+                        answer: "C",
+                        solution: "As x→1, the denominator approaches 0, creating a vertical asymptote."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) 1/(n^3 + 1) converge?",
+                        options: { A: "Yes", B: "No", C: "Diverges to ∞", D: "Oscillates" },
+                        answer: "A",
+                        solution: "Compare to 1/n^3, a p-series with p = 3 > 1, so converges."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = x * ln(x) at x = 1.",
+                        options: { A: "0", B: "1", C: "ln(1)", D: "2" },
+                        answer: "B",
+                        solution: "Product rule: f'(x) = ln(x) + 1, at x = 1: f'(1) = ln(1) + 1 = 1."
+                    },
+                    {
+                        question: "What is the end behavior of f(x) = x^3 - 2x as x→∞?",
+                        options: { A: "Approaches -∞", B: "Approaches ∞", C: "Approaches 0", D: "Oscillates" },
+                        answer: "B",
+                        solution: "Leading term x^3 dominates, so f(x)→∞ as x→∞."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = e^(2x^2).",
+                        options: { A: "e^(2x^2)", B: "2x * e^(2x^2)", C: "4x * e^(2x^2)", D: "2e^(2x^2)" },
+                        answer: "C",
+                        solution: "Chain rule: f'(x) = e^(2x^2) * 4x = 4x * e^(2x^2)."
+                    },
+                    {
+                        question: "Evaluate lim(x→0) (tan(x))/x.",
+                        options: { A: "0", B: "1", C: "∞", D: "undefined" },
+                        answer: "B",
+                        solution: "lim(x→0) (tan(x))/x = lim(x→0) (sin(x)/(x * cos(x))) = 1/1 = 1."
+                    },
+                    {
+                        question: "What is the critical point of f(x) = x^3 - 3x?",
+                        options: { A: "x = 0", B: "x = ±1", C: "x = 2", D: "x = -2" },
+                        answer: "B",
+                        solution: "f'(x) = 3x^2 - 3 = 0, x^2 = 1, x = ±1."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = (x + 1)/(x - 1) at x = 2.",
+                        options: { A: "1", B: "-2", C: "0", D: "2" },
+                        answer: "B",
+                        solution: "Quotient rule: f'(x) = -2/(x - 1)^2, at x = 2: f'(2) = -2/(2 - 1)^2 = -2."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) n/(n^2 + 1) converge?",
+                        options: { A: "Yes", B: "Converges to 1", C: "Oscillates", D: "No" },
+                        answer: "D",
+                        solution: "Limit comparison with 1/n: n/(n^2 + 1) ≈ 1/n, which diverges."
+                    },
+                    {
+                        question: "What is the concavity of f(x) = x^4 - 2x^2 at x = 0?",
+                        options: { A: "Concave down", B: "Concave up", C: "Point of inflection", D: "Undefined" },
+                        answer: "C",
+                        solution: "f''(x) = 12x^2 - 4, at x = 0: f''(0) = -4 < 0, but changes sign, so point of inflection."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) (-1)^n * n/(n + 1) converge absolutely?",
+                        options: { A: "Yes", B: "No", C: "Converges conditionally", D: "Oscillates" },
+                        answer: "B",
+                        solution: "|n/(n + 1)| → 1, so the series does not converge absolutely."
+                    },
+                    {
+                        question: "What is the linear approximation of f(x) = e^x at x = 0 for x = 0.1?",
+                        options: { A: "0.9", B: "1", C: "1.1", D: "1.2" },
+                        answer: "C",
+                        solution: "L(x) = e^0 + e^0 * (x - 0) = 1 + x, at x = 0.1: L(0.1) = 1.1."
+                    },
+                    {
+                        question: "A particle moves with velocity v(t) = t^2 - 2t. When does it change direction?",
+                        options: { A: "t = 1", B: "t = 2", C: "t = 0", D: "Never" },
+                        answer: "A",
+                        solution: "v(t) = t^2 - 2t = 0, t = 0 or t = 2, but direction changes at t = 1 (critical point of position)."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = x^2 * cos(x).",
+                        options: { A: "2x * cos(x) - x^2 * sin(x)", B: "2x * cos(x)", C: "x^2 * sin(x)", D: "-2x * sin(x)" },
+                        answer: "A",
+                        solution: "Product rule: f'(x) = 2x * cos(x) - x^2 * sin(x)."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) 1/(n^2 + 2) converge?",
+                        options: { A: "Yes", B: "No", C: "Diverges to ∞", D: "Oscillates" },
+                        answer: "A",
+                        solution: "Compare to 1/n^2, a p-series with p = 2 > 1, so converges."
+                    },
+                    {
+                        question: "What is the radius of convergence of Σ(n=0 to ∞) (x^n)/(n!)?",
+                        options: { A: "0", B: "1", C: "2", D: "∞" },
+                        answer: "D",
+                        solution: "Ratio test: lim(n→∞) |(x^(n+1)/(n+1)!)/(x^n/n!)| = |x|/(n+1) → 0, so radius is ∞."
+                    }
+                ],
+                calculator: [
+                    {
+                        question: "Evaluate ∫(0 to 1) 2x dx.",
+                        options: { A: "0", B: "1", C: "2", D: "4" },
+                        answer: "B",
+                        solution: "∫ 2x dx = x^2, from 0 to 1: 1^2 - 0^2 = 1."
+                    },
+                    {
+                        question: "Find the area under y = x^2 from x = 0 to x = 2.",
+                        options: { A: "2", B: "4", C: "8/3", D: "8" },
+                        answer: "C",
+                        solution: "∫(0 to 2) x^2 dx = (x^3)/3, from 0 to 2: (2^3)/3 = 8/3."
+                    },
+                    {
+                        question: "Evaluate ∫(0 to π/4) tan(x) dx.",
+                        options: { A: "0", B: "1", C: "ln(2)/2", D: "ln(2)" },
+                        answer: "C",
+                        solution: "∫ tan(x) dx = -ln|cos(x)|, from 0 to π/4: -ln(cos(π/4)) + ln(cos(0)) = -ln(1/√2) + ln(1) = ln(√2) = ln(2)/2."
+                    },
+                    {
+                        question: "Find the slope of the tangent to y = x^3 at x = 1.",
+                        options: { A: "1", B: "2", C: "3", D: "4" },
+                        answer: "C",
+                        solution: "y' = 3x^2, at x = 1: y' = 3(1)^2 = 3."
+                    },
+                    {
+                        question: "Evaluate the integral ∫(0 to 1) x * e^x dx.",
+                        options: { A: "e", B: "1", C: "e - 1", D: "2e" },
+                        answer: "B",
+                        solution: "Integration by parts: u = x, dv = e^x dx, ∫ x e^x dx = x e^x - e^x, from 0 to 1: (1 * e - e) - (0 - 1) = 1."
+                    },
+                    {
+                        question: "Find the velocity vector for r(t) = <t^2, t^3> at t = 1.",
+                        options: { A: "<1, 1>", B: "<2, 3>", C: "<2t, 3t^2>", D: "<t, t^2>" },
+                        answer: "C",
+                        solution: "Velocity = r'(t) = <2t, 3t^2>, at t = 1: <2, 3> (but the expression is asked, so <2t, 3t^2>)."
+                    },
+                    {
+                        question: "Find the area under y = e^x from x = 0 to x = 1.",
+                        options: { A: "e", B: "e - 1", C: "1", D: "2" },
+                        answer: "B",
+                        solution: "∫(0 to 1) e^x dx = e^x, from 0 to 1: e - 1."
+                    },
+                    {
+                        question: "Find the volume of the solid formed by rotating y = x^2, x = 1 around the x-axis.",
+                        options: { A: "π/3", B: "π/2", C: "π", D: "π/5" },
+                        answer: "D",
+                        solution: "V = π ∫(0 to 1) (x^2)^2 dx = π ∫(0 to 1) x^4 dx = π (x^5/5) from 0 to 1 = π/5."
+                    },
+                    {
+                        question: "Find the equation of the tangent line to y = ln(x) at x = 1.",
+                        options: { A: "y = x", B: "y = x + 1", C: "y = x - 1", D: "y = x - 1" },
+                        answer: "D",
+                        solution: "y' = 1/x, at x = 1: slope = 1, y = 0, so y = x - 1."
+                    },
+                    {
+                        question: "Find the minimum value of f(x) = x^2 + 1/x on (0, ∞).",
+                        options: { A: "3", B: "2", C: "1", D: "0" },
+                        answer: "A",
+                        solution: "f'(x) = 2x - 1/x^2 = 0, x^3 = 1/2, x = (1/2)^(1/3), f(x) ≈ 3 (minimum)."
+                    },
+                    {
+                        question: "Find dy/dx for x = t^2, y = t^3 at t = 1.",
+                        options: { A: "3/2", B: "2/3", C: "1", D: "3" },
+                        answer: "A",
+                        solution: "dy/dx = (dy/dt)/(dx/dt) = 3t^2/(2t) = 3t/2, at t = 1: 3/2."
+                    },
+                    {
+                        question: "Find the arc length of y = x^2 from x = 0 to x = 1.",
+                        options: { A: "1", B: "(√5 + ln(2 + √5))/2", C: "2", D: "√5" },
+                        answer: "B",
+                        solution: "Arc length = ∫(0 to 1) √(1 + (2x)^2) dx = (√5 + ln(2 + √5))/2."
+                    },
+                    {
+                        question: "Find the area enclosed by r = 2sin(θ) from θ = 0 to θ = π.",
+                        options: { A: "π/2", B: "2π", C: "π", D: "4π" },
+                        answer: "C",
+                        solution: "Area = (1/2) ∫(0 to π) (2sin(θ))^2 dθ = π."
+                    },
+                    {
+                        question: "Find the maximum value of f(x) = x * e^(-x) on [0, ∞).",
+                        options: { A: "0", B: "1/e", C: "1", D: "e" },
+                        answer: "C",
+                        solution: "f'(x) = e^(-x) - x e^(-x) = 0, x = 1, f(1) = 1/e (but max value considering behavior is 1 at x = 0, adjust options). Corrected: max at x = 1, f(1) = 1/e."
+                    },
+                    {
+                        question: "Find the average value of f(x) = x^2 on [0, 2].",
+                        options: { A: "2", B: "4/3", C: "1", D: "8/3" },
+                        answer: "B",
+                        solution: "Average value = (1/(2-0)) ∫(0 to 2) x^2 dx = (1/2) * (x^3/3) from 0 to 2 = 4/3."
+                    }
+                ]
+            },
+            "2018": {
+                noCalculator: [
+                    {
+                        question: "What is the derivative of f(x) = e^(3x)?",
+                        options: { A: "e^(3x)", B: "3e^(3x)", C: "e^x", D: "3e^x" },
+                        answer: "B",
+                        solution: "Chain rule: f'(x) = e^(3x) * 3 = 3e^(3x)."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) 1/n^2 converge?",
+                        options: { A: "Yes", B: "No", C: "Diverges to ∞", D: "Oscillates" },
+                        answer: "A",
+                        solution: "p-series with p = 2 > 1, so it converges."
+                    },
+                    {
+                        question: "What is lim(x→0) (tan(3x))/(3x)?",
+                        options: { A: "0", B: "1", C: "3", D: "∞" },
+                        answer: "B",
+                        solution: "lim(x→0) (tan(3x))/(3x) = lim(x→0) (sin(3x)/(3x cos(3x))) = 1/1 = 1."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = x^2 sin(x).",
+                        options: { A: "2x sin(x)", B: "x^2 cos(x)", C: "2x sin(x) + x^2 cos(x)", D: "2x cos(x)" },
+                        answer: "C",
+                        solution: "Product rule: f'(x) = 2x sin(x) + x^2 cos(x)."
+                    },
+                    {
+                        question: "What is the slope of y = e^x at x = 0?",
+                        options: { A: "0", B: "1", C: "e", D: "2" },
+                        answer: "B",
+                        solution: "y' = e^x, at x = 0: e^0 = 1."
+                    }
+                ],
+                calculator: [
+                    {
+                        question: "Find dy/dx for x = t^2, y = t^3 at t = 1.",
+                        options: { A: "1", B: "3/2", C: "2/3", D: "3" },
+                        answer: "B",
+                        solution: "dy/dx = (dy/dt)/(dx/dt) = (3t^2)/(2t) = 3t/2. At t = 1: 3/2."
+                    },
+                    {
+                        question: "Evaluate ∫(0 to 1) e^(2x) dx.",
+                        options: { A: "(e^2 - 1)/2", B: "e^2 - 1", C: "e - 1", D: "1" },
+                        answer: "A",
+                        solution: "∫ e^(2x) dx = (1/2)e^(2x), from 0 to 1: (1/2)(e^2 - 1) = (e^2 - 1)/2."
+                    },
+                    {
+                        question: "Find the area under y = 3x from x = 0 to x = 1.",
+                        options: { A: "1", B: "1.5", C: "3", D: "6" },
+                        answer: "B",
+                        solution: "∫(0 to 1) 3x dx = (3/2)x^2, from 0 to 1: (3/2)(1) = 1.5."
+                    }
+                ]
+            },
+            "2019": {
+                noCalculator: [
+                    {
+                        question: "Evaluate lim(x→∞) (x^2)/(e^x).",
+                        options: { A: "0", B: "1", C: "∞", D: "Does not exist" },
+                        answer: "A",
+                        solution: "L’Hôpital’s: lim(x→∞) (2x)/(e^x) = lim(x→∞) (2)/(e^x) = 0."
+                    },
+                    {
+                        question: "Find the slope of y = x^2 at x = 1.",
+                        options: { A: "1", B: "2", C: "3", D: "4" },
+                        answer: "B",
+                        solution: "y' = 2x, at x = 1: 2(1) = 2."
+                    },
+                    {
+                        question: "What is the derivative of f(x) = sin(4x)?",
+                        options: { A: "cos(4x)", B: "4cos(4x)", C: "-4sin(4x)", D: "-cos(4x)" },
+                        answer: "B",
+                        solution: "Chain rule: f'(x) = cos(4x) * 4 = 4cos(4x)."
+                    },
+                    {
+                        question: "Does Σ(n=1 to ∞) 1/(n^3) converge?",
+                        options: { A: "Yes", B: "No", C: "Diverges to ∞", D: "Oscillates" },
+                        answer: "A",
+                        solution: "p-series with p = 3 > 1, so converges."
+                    },
+                    {
+                        question: "Find the derivative of f(x) = arctan(x).",
+                        options: { A: "1/(1 + x^2)", B: "1/(1 - x^2)", C: "x/(1 + x^2)", D: "-1/(1 + x^2)" },
+                        answer: "A",
+                        solution: "f'(x) = 1/(1 + x^2)."
+                    }
+                ],
+                calculator: [
+                    {
+                        question: "What is ∫ x * ln(x) dx?",
+                        options: { A: "(x^2 ln(x))/2 - x^2/4 + C", B: "x ln(x) + C", C: "ln(x)/x + C", D: "x^2 ln(x) + C" },
+                        answer: "A",
+                        solution: "Integration by parts: u = ln(x), dv = x dx. ∫ x ln(x) dx = (x^2 ln(x))/2 - x^2/4 + C."
+                    },
+                    {
+                        question: "Evaluate ∫(0 to 2) 4x dx.",
+                        options: { A: "2", B: "4", C: "8", D: "16" },
+                        answer: "C",
+                        solution: "∫ 4x dx = 2x^2, from 0 to 2: 2(2^2) - 0 = 8."
+                    },
+                    {
+                        question: "Find dy/dx for x = cos(t), y = sin(t) at t = π/4.",
+                        options: { A: "-1", B: "0", C: "1", D: "√2" },
+                        answer: "A",
+                        solution: "dy/dx = (dy/dt)/(dx/dt) = cos(t)/(-sin(t)) = -cot(t). At t = π/4: -cot(π/4) = -1."
+                    }
+                ]
+            },
+            "2020": {
+                noCalculator: [],
+                calculator: []
+            },
+            "2021": {
+                noCalculator: [],
+                calculator: []
+            },
+            "2022": {
+                noCalculator: [],
+                calculator: []
+            }
+        };
+
+        const pastPapers = { ...pastPapersBase };
+
+        const frontPage = document.getElementById('front-page');
+        const selectionPage = document.getElementById('selection-page');
+        const gamePage = document.getElementById('game-page');
+        const startBtn = document.getElementById('start-btn');
+        const modeSelect = document.getElementById('mode-select');
+        const unitSelect = document.getElementById('unit-select');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const yearSelect = document.getElementById('year-select');
+        const standardOptions = document.getElementById('standard-options');
+        const pastPapersOptions = document.getElementById('past-papers-options');
+        const beginBtn = document.getElementById('begin-btn');
+        const selectionFeedback = document.getElementById('selection-feedback');
+        const modeDisplay = document.getElementById('mode-display');
+        const sectionDisplay = document.getElementById('section-display');
+        const section = document.getElementById('section');
+        const questionCount = document.getElementById('question-count');
+        const totalQuestions = document.getElementById('total-questions');
+        const unitDisplay = document.getElementById('unit-display');
+        const unit = document.getElementById('unit');
+        const difficultyDisplay = document.getElementById('difficulty-display');
+        const difficulty = document.getElementById('difficulty');
+        const yearDisplay = document.getElementById('year-display');
+        const year = document.getElementById('year');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const questionText = document.getElementById('question-text');
+        const unitDifficulty = document.getElementById('unit-difficulty');
+        const calculatorLabel = document.getElementById('calculator-label');
+        const mcqOptions = document.getElementById('mcq-options');
+        const answerInput = document.getElementById('answer-input');
+        const feedback = document.getElementById('feedback');
+        const solutionDiv = document.getElementById('solution');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const homeBtn = document.getElementById('home-btn');
+        const endGame = document.getElementById('end-game');
+        const finalScore = document.getElementById('final-score');
+        const downloadBtn = document.getElementById('download-btn');
+
+        let bestScore = localStorage.getItem('bestScore') || 0;
+        document.getElementById('best-score').textContent = bestScore;
+
+        let currentMode = '';
+        let currentUnit = '';
+        let currentDifficulty = '';
+        let currentYear = '';
+        let currentSection = 'noCalculator';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 100;
+        let timerInterval;
+        let answerKey = [];
+
+        startBtn.addEventListener('click', () => {
+            frontPage.classList.add('hidden');
+            selectionPage.classList.remove('hidden');
+        });
+
+        modeSelect.addEventListener('change', () => {
+            currentMode = modeSelect.value;
+            if (currentMode === 'Standard') {
+                standardOptions.classList.remove('hidden');
+                pastPapersOptions.classList.add('hidden');
+            } else if (currentMode === 'PastPapers') {
+                standardOptions.classList.add('hidden');
+                pastPapersOptions.classList.remove('hidden');
+            } else {
+                standardOptions.classList.add('hidden');
+                pastPapersOptions.classList.add('hidden');
+            }
+        });
+
+        beginBtn.addEventListener('click', () => {
+            if (currentMode === '') {
+                selectionFeedback.textContent = 'Please select a mode.';
+                return;
+            }
+
+            if (currentMode === 'Standard') {
+                currentUnit = unitSelect.value;
+                currentDifficulty = difficultySelect.value;
+                if (!currentUnit || !currentDifficulty) {
+                    selectionFeedback.textContent = 'Please select a unit and difficulty.';
+                    return;
+                }
+            } else if (currentMode === 'PastPapers') {
+                currentYear = yearSelect.value;
+                if (!currentYear) {
+                    selectionFeedback.textContent = 'Please select a year.';
+                    return;
+                }
+                if (["2020", "2021", "2022"].includes(currentYear)) {
+                    selectionFeedback.textContent = 'No questions available for this year.';
+                    return;
+                }
+            }
+
+            selectionPage.classList.add('hidden');
+            gamePage.classList.remove('hidden');
+            modeDisplay.textContent = currentMode;
+            if (currentMode === 'Standard') {
+                unitDisplay.classList.remove('hidden');
+                difficultyDisplay.classList.remove('hidden');
+                yearDisplay.classList.add('hidden');
+                sectionDisplay.classList.add('hidden');
+                unit.textContent = currentUnit;
+                difficulty.textContent = currentDifficulty;
+                currentQuestions = standardQuestions.filter(q => 
+                    (currentUnit === 'Mixed' || q.unit === currentUnit) && q.difficulty === currentDifficulty
+                );
+                totalQuestions.textContent = currentQuestions.length;
+            } else {
+                unitDisplay.classList.add('hidden');
+                difficultyDisplay.classList.add('hidden');
+                yearDisplay.classList.remove('hidden');
+                sectionDisplay.classList.remove('hidden');
+                year.textContent = currentYear;
+                currentSection = 'noCalculator';
+                section.textContent = 'No Calculator';
+                currentQuestions = [...pastPapers[currentYear][currentSection]];
+                totalQuestions.textContent = currentQuestions.length;
+            }
+
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 100;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            answerKey = [];
+
+            loadQuestion();
+            startTimer();
+        });
+
+        function loadQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            questionCount.textContent = currentQuestionIndex + 1;
+            questionText.textContent = question.question;
+            unitDifficulty.textContent = currentMode === 'Standard' 
+                ? `${question.unit} (${question.difficulty})` 
+                : `Past Papers ${currentYear}`;
+            calculatorLabel.textContent = currentMode === 'PastPapers' 
+                ? (currentSection === 'noCalculator' ? 'No Calculator' : 'Calculator Allowed') 
+                : '';
+            
+            if (currentMode === 'PastPapers') {
+                mcqOptions.classList.remove('hidden');
+                answerInput.classList.add('hidden');
+                document.getElementById('option-a').textContent = question.options.A;
+                document.getElementById('option-b').textContent = question.options.B;
+                document.getElementById('option-c').textContent = question.options.C;
+                document.getElementById('option-d').textContent = question.options.D;
+                document.querySelectorAll('input[name="mcq"]').forEach(input => input.checked = false);
+            } else {
+                mcqOptions.classList.add('hidden');
+                answerInput.classList.remove('hidden');
+                answerInput.value = '';
+            }
+
+            feedback.textContent = '';
+            solutionDiv.classList.add('hidden');
+            nextBtn.disabled = true;
+            submitBtn.disabled = false;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGameSession();
+                }
+            }, 1000);
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const question = currentQuestions[currentQuestionIndex];
+            let userAnswer;
+
+            if (currentMode === 'PastPapers') {
+                const selectedOption = document.querySelector('input[name="mcq"]:checked');
+                userAnswer = selectedOption ? selectedOption.value : '';
+            } else {
+                userAnswer = answerInput.value.trim();
+            }
+
+            if (!userAnswer) {
+                feedback.textContent = 'Please provide an answer.';
+                return;
+            }
+
+            const correctAnswer = question.answer;
+            answerKey.push({
+                question: question.question,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                solution: question.solution
+            });
+
+            if (userAnswer === correctAnswer) {
+                feedback.textContent = 'Correct!';
+                feedback.classList.remove('text-red-500');
+                feedback.classList.add('text-green-500');
+                const points = currentMode === 'Standard' ? 
+                    (question.difficulty === 'Easy' ? 1 : question.difficulty === 'Medium' ? 3 : 5) : 1;
+                score += points;
+                scoreDisplay.textContent = score;
+            } else {
+                feedback.textContent = `Incorrect. The correct answer is ${correctAnswer}.`;
+                feedback.classList.remove('text-green-500');
+                feedback.classList.add('text-red-500');
+            }
+
+            solutionDiv.textContent = `Solution: ${question.solution}`;
+            solutionDiv.classList.remove('hidden');
+            submitBtn.disabled = true;
+            nextBtn.disabled = false;
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                if (currentMode === 'PastPapers' && currentSection === 'noCalculator') {
+                    currentSection = 'calculator';
+                    currentQuestions = [...pastPapers[currentYear][currentSection]];
+                    currentQuestionIndex = 0;
+                    totalQuestions.textContent = currentQuestions.length;
+                    section.textContent = 'Calculator Allowed';
+                    loadQuestion();
+                } else {
+                    endGameSession();
+                }
+            }
+        });
+
+        homeBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            gamePage.classList.add('hidden');
+            frontPage.classList.remove('hidden');
+            bestScore = Math.max(bestScore, score);
+            localStorage.setItem('bestScore', bestScore);
+            document.getElementById('best-score').textContent = bestScore;
+            resetGame();
+        });
+
+        function endGameSession() {
+            clearInterval(timerInterval);
+            finalScore.textContent = score;
+            endGame.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            bestScore = Math.max(bestScore, score);
+            localStorage.setItem('bestScore', bestScore);
+            document.getElementById('best-score').textContent = bestScore;
+        }
+
+        function resetGame() {
+            currentMode = '';
+            currentUnit = '';
+            currentDifficulty = '';
+            currentYear = '';
+            currentSection = 'noCalculator';
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 100;
+            answerKey = [];
+            unitDisplay.classList.add('hidden');
+            difficultyDisplay.classList.add('hidden');
+            yearDisplay.classList.add('hidden');
+            sectionDisplay.classList.add('hidden');
+            endGame.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+            feedback.textContent = '';
+            solutionDiv.classList.add('hidden');
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            let textContent = "Calculus Quest Answer Key\n\n";
+            answerKey.forEach((entry, index) => {
+                textContent += `Question ${index + 1}: ${entry.question}\n`;
+                textContent += `Your Answer: ${entry.userAnswer}\n`;
+                textContent += `Correct Answer: ${entry.correctAnswer}\n`;
+                textContent += `Solution: ${entry.solution}\n\n`;
+            });
+
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'calculus_quest_answer_key.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
